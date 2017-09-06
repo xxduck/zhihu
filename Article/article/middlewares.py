@@ -6,6 +6,9 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from fake_useragent import UserAgent
+from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
+from scrapy.contrib.downloadermiddleware.httpproxy import HttpProxyMiddleware
 
 
 class ArticleSpiderMiddleware(object):
@@ -54,3 +57,18 @@ class ArticleSpiderMiddleware(object):
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class ChangeUserAgent(UserAgentMiddleware):
+    def __init__(self):
+        self.ua = UserAgent().random
+
+    # @classmethod
+    # def from_crawler(cls, crawler):
+    #     # This method is used by Scrapy to create your spiders.
+    #     s = cls()
+    #     crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
+    #     return s
+
+    def process_request(self, request, spider):
+        request.headers.setdefault('User-Agent', self.ua)
